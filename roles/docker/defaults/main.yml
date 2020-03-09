@@ -1,0 +1,36 @@
+---
+# author: fat
+
+docker_repo_redhat: "http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo"
+docker_gpg_debian: "http://mirrors.aliyun.com/docker-ce/linux/ubuntu/gpg"
+docker_repo_debian: "http://mirrors.aliyun.com/docker-ce/linux/ubuntu"
+docker_old:
+  - docker-ce
+  - docker-ce-cli
+
+docker_packages_redhat:
+  - lvm2
+  - yum-utils
+  - device-mapper-persistent-data
+  - bash-completion
+  
+docker_packages_debian:
+   - apt-transport-https 
+   - ca-certificates 
+   - curl 
+   - software-properties-common
+    
+docker_ce_packages_debian:
+   - "docker-ce=5:{{ docker_ce_version }}~3-0~ubuntu-{{ ansible_distribution_release }}"
+   - "docker-ce-cli=5:{{ docker_ce_version }}~3-0~ubuntu-{{ ansible_distribution_release }}"
+   
+docker_ce_packages_redhat:
+   - docker-ce-{{ docker_ce_version }}-3.el7
+   - docker-ce-cli-{{ docker_ce_version }}-3.el7
+
+firewalld_stop: true
+
+
+docker_registry_mirrors: ["https://docker.mirrors.ustc.edu.cn/", "http://hub-mirror.c.163.com"]
+docker_insecure_registries: ["harbor.pub.pdm.cmdrawin.com"]
+docker_data_root: /var/lib/docker

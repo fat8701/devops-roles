@@ -1,0 +1,16 @@
+#create by ansible
+
+[client]
+port            = {{ mysql57_port }}
+socket          = {{ mysql57_sock }}
+default-character-set = utf8mb4
+
+[mysqldump]
+quick
+max_allowed_packet = 500M
+
+[mysql]
+no-auto-rehash
+prompt="MySQL [\d]> "
+default-character-set = utf8mb4
+

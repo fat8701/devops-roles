@@ -1,0 +1,50 @@
+---
+# author: fat
+
+- name: Ensure docker history packages are removed.
+  apt: "name={{ docker_old }} state=absent"
+
+- name: Ensure docker packages are installed.
+  apt: "name={{ docker_packages_debian }} update_cache=yes"
+   
+- name: Add apt key.
+  apt_key:
+    url: "{{ docker_gpg_debian }}"
+    state: present
+    
+- name: Add specified repository into sources list.
+  apt_repository:
+    repo: deb [arch=amd64] {{ docker_repo_debian }} {{ ansible_distribution_release }} stable
+    state: present
+
+- name: Create Docker config directory.
+  file: path=/etc/docker state=directory
+
+- name: Configure docker startup parameters.
+  template:
+    src: daemon.json.j2
+    dest: "/etc/docker/daemon.json"
+
+- name: prevent error in next task that docker_ce_packages_debian include undefined variable docker_ce_version.
+  set_fact: docker_ce_packages_debian=""
+  when: docker_ce_version is not defined
+
+- name: Ensure docker-ce are installed.
+  apt:
+     name: |-
+         {%- if docker_ce_version is not defined -%}
+            {{ docker_old }}
+         {%- else -%}
+            {{ docker_ce_packages_debian }}
+         {%- endif -%}
+     update_cache: yes
+  
+- name: Ensure docker is started and enabled at boot.
+  systemd: name=docker state=started enabled=yes
+ 
+- name: docker version
+  shell: docker version
+  register: result
+  ignore_errors: True
+
+- debug: var=result.stdout_lines

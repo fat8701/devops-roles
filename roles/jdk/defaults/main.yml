@@ -1,0 +1,13 @@
+---
+# author: fat
+
+software_files_path: "/opt/software"
+software_install_path: "/usr/local"
+
+java_home: "/usr/java/jdk1.8"
+
+java_file: "jdk-8u241-linux-x64.tar.gz"
+java_file_path: "{{ software_files_path }}/{{ java_file }}"
+java_install_path: "{{ software_install_path }}/jdk1.8.0_241"
+#java_file_url: "https://edelivery.oracle.com/otn-pub/java/jdk/8u241-b07/1f5b5a70bf22433b84d0e960903adac8/{{java_file}}"
+#ansible_python_interpreter: "/usr/bin/python2.7"

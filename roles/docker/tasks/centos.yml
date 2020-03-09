@@ -1,0 +1,63 @@
+---
+# author: fat
+
+- name: Ensure docker history packages are removed.
+  yum: "name={{ docker_old }} state=removed"
+
+- name: Ensure docker packages are installed.
+  yum: "name={{ docker_packages_redhat }} state=installed  update_cache=yes"
+   
+- name: Install docker repo.
+#  shell: "yum-config-manager --add-repo {{ docker_repo_redhat }}"
+#  shell: "curl -o /etc/yum.repos.d/docker-ce.repo {{ docker_repo_redhat }}"
+  get_url:
+    url: "{{ docker_repo_redhat }}"
+    dest: /etc/yum.repos.d/docker-ce.repo
+    
+
+- name: Modify the docker software source.
+  replace:
+    path: /etc/yum.repos.d/docker-ce.repo
+    regexp: 'download\.docker\.com'
+    replace: "mirrors.aliyun.com/docker-ce"
+
+- name: Create Docker config directory.
+  file: path=/etc/docker state=directory
+
+- name: Configure docker startup parameters.
+  template:
+    src: daemon.json.j2
+    dest: "/etc/docker/daemon.json"
+    
+- name: prevent error in next task that docker_ce_packages_redhat include undefined variable docker_ce_version.
+  set_fact: docker_ce_packages_redhat=""
+  when: docker_ce_version is not defined
+
+- name: Ensure docker-ce are installed.
+  yum:      
+    name: |-
+      {%- if docker_ce_version is not defined -%}
+          {{ docker_old }}
+      {%- else -%}
+          {{ docker_ce_packages_redhat }}
+      {%- endif -%}
+    state: installed  
+    update_cache: yes  
+    enablerepo: docker-ce-stable
+
+- name: Set docker completion.
+  copy: src=/usr/share/bash-completion/completions/docker dest=/etc/bash_completion.d/docker remote_src=yes
+
+- name: Ensure firewalld stoped.
+  systemd: name=firewalld state=stopped enabled=no
+  when: firewalld_stop | bool
+  
+- name: Ensure docker is started and enabled at boot.
+  systemd: name=docker state=started enabled=yes
+  
+- name: docker version
+  shell: docker version
+  register: result
+  ignore_errors: True
+
+- debug: var=result.stdout_lines

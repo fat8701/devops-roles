@@ -1,0 +1,78 @@
+---
+# author: fat
+
+# - name: enable | install software.
+  # package:
+    # name: "{{ item }}"
+    # state: present
+  # with_items: "{{ __package }}"
+
+- block:   
+    - name: enable | Ensure packages are installed.
+      yum:
+        name: "{{ __package }}"
+        state: installed
+        update_cache: yes
+      when: ansible_os_family == 'RedHat'  
+
+    - name: enable | Ensure update_cache not warning.
+      apt:
+        name: python-apt
+        state: present
+      when: ansible_os_family == 'Debian'
+      
+    - name: enable | Ensure  packages are installed.
+      apt:
+        name: "{{ __package }}"
+        state: present
+        update_cache: yes
+      when: ansible_os_family == 'Debian'  
+  tags:
+   - install-packages
+  
+- block:
+  - name: enable | journald Directory.
+    file: path={{ item }} state=directory
+    with_items:
+     - "/var/log/journal"
+     - "/etc/systemd/journald.conf.d"
+
+  - name: enable | journald conf.
+    blockinfile:
+      path: /etc/systemd/journald.conf.d/99-prophet.conf
+      create: yes
+      marker: "# ansible os-init {mark}"
+      block: |
+        [Journal]
+        # 持久化保存到磁盘
+        Storage=persistent
+        # 压缩历史日志
+        Compress=yes
+        SyncIntervalSec=5m
+        RateLimitInterval=30s
+        RateLimitBurst= 1000
+        # 最大占用空间 10G
+        SystemMaxUse=10G
+        # 单日志文件最大 200M
+        SystemMaxFileSize=200M
+        # 日志保存时间1个月
+        MaxRetentionSec=1month
+        
+        # 不将日志转发到 syslog
+        ForwardToSyslog=no
+  tags:
+    - journald
+
+- block:
+  - name: enable | Add execute permissions to the rc.local file.
+    lineinfile:
+      path: /etc/rc.local
+      line: exit 0
+      mode: u+x,g+x,o+x
+      create: yes
+  
+  - name: enable | Set rc-local to boot.
+    service: name=rc-local enabled=yes
+  when: "ansible_service_mgr == 'systemd'"
+  tags:
+   - rc-local

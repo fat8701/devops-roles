@@ -1,0 +1,9 @@
+---
+# author: fat
+
+# Include OS-specific installation tasks.
+- include: centos.yml
+  when: ansible_os_family | lower == 'redhat'
+
+- include: ubuntu.yml
+  when: ansible_os_family | lower == 'debian'

@@ -1,0 +1,21 @@
+---
+# author: fat
+
+- name: "check | clean webapps default directory"
+  file: path={{ item }} state=absent
+  with_items:
+    - "{{ tomcat_work_path }}/webapps/docs"
+    - "{{ tomcat_work_path }}/webapps/examples"
+    - "{{ tomcat_work_path }}/webapps/host-manager"
+    - "{{ tomcat_work_path }}/webapps/manager"
+  when: tomcat_clear_webapps | bool
+
+- name: "check | Change jsvc rc code."
+  replace: path=/etc/init.d/{{ tomcat_services_name }} regexp="exit \$\?" replace="exit 0"
+  
+- name: "check | Ensure {{ tomcat_services_name }} is running for centos7."
+  systemd: "name={{ tomcat_services_name }} state=restarted enabled=true daemon_reload=true"
+  
+
+- name: "check | Wait {{ tomcat_catalina_port }} port is opening."
+  wait_for: port={{ tomcat_catalina_port }}

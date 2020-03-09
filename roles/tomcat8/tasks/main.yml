@@ -1,0 +1,14 @@
+---
+# author: fat
+
+# - name: Include tomcat8 variables.
+  # include_vars: tomcat8.yml
+  # when: tomcat_version | regex_search("^8\.")
+  
+- include: install.yml
+- include: configure.yml
+- include: apr.yml
+  when: tomcat_apr | bool
+- include: logrotate.yml
+- include: check.yml
+

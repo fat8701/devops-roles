@@ -1,0 +1,5 @@
+- hosts: all
+  tasks:
+      - name: multi-roles
+        include_role: name={{ item }}
+        with_items: "{{ roles_name }}"
