@@ -1,0 +1,66 @@
+---
+# author: fat
+
+- name: install_windows | Create software directory.
+  file: path={{ software_files_path }} state=directory
+  delegate_to: localhost
+  run_once: true
+
+- name: install_windows | Download zabbix-agent zip file.
+  get_url: 
+    url: "{{ zabbix_agent_win_url[zabbix_agent_win_version|string] }}"
+    dest: "{{ software_files_path }}/{{ zabbix_agent_win_package }}"
+  delegate_to: localhost
+
+- name: install_windows | Stop zabbix-agent
+  win_command: zabbix_agentd.exe -x -c {{ zabbix_agent_conf_path }}\zabbix_agentd.conf
+  args:
+    chdir: "{{ zabbix_agent_bin_path }}"
+  ignore_errors: true
+  
+- name: install_windows | Unintall zabbix-agent
+  win_command: zabbix_agentd.exe -d -c {{ zabbix_agent_conf_path }}\zabbix_agentd.conf
+  args:
+    chdir: "{{ zabbix_agent_bin_path }}" 
+  ignore_errors: true
+  
+- name: install_windows | Copy zip file to agent.
+  win_copy:
+    src: "{{ software_files_path }}/{{ zabbix_agent_win_package }}"
+    dest: "{{ zabbix_agent_install_path }}"
+
+- name: install_windows | Copy zip file to agent.
+  win_unzip:
+    src: "{{ zabbix_agent_install_path }}\\{{ zabbix_agent_win_package }}"
+    dest: "{{ zabbix_agent_install_path }}\\{{ zabbix_agent_win_package|regex_replace('.zip') }}"
+    creates: "{{ zabbix_agent_install_path }}\\{{ zabbix_agent_win_package|regex_replace('.zip') }}"
+    
+- name: install_windows | Copy to running directory.
+  win_copy:
+    src: "{{ zabbix_agent_install_path }}\\{{ zabbix_agent_win_package|regex_replace('.zip') }}\\bin"
+    dest: "{{ zabbix_agent_running_path }}"
+    remote_src: yes
+
+- name: install_windows | Create directory structure
+  win_file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - "{{ zabbix_agent_log_path }}"
+    - "{{ zabbix_agent_conf_path }}"
+    
+- name: install_windows | Create zabbix_agentd.conf.
+  win_template:
+    src: zabbix_agentd_win.conf.j2
+    dest: "{{ zabbix_agent_conf_path }}\\zabbix_agentd.conf"
+    backup: yes   
+    
+- name: install_windows | Install zabbix-agent
+  win_command: zabbix_agentd.exe -i -c {{ zabbix_agent_conf_path }}\zabbix_agentd.conf
+  args:
+    chdir: "{{ zabbix_agent_bin_path }}"
+    
+- name: install_windows | Running zabbix-agent
+  win_command: zabbix_agentd.exe -s -c {{ zabbix_agent_conf_path }}\zabbix_agentd.conf
+  args:
+    chdir: "{{ zabbix_agent_bin_path }}"

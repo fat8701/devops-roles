@@ -1,0 +1,31 @@
+---
+# author: fat
+
+software_files_path: "/opt/software"
+software_install_path: "/usr/local"
+
+zookeeper_version: "3.5.7"
+
+zookeeper_file_path: "{{ software_files_path }}/{{ zookeeper_file }}"
+zookeeper_file_url: "https://archive.apache.org/dist/zookeeper/zookeeper-{{ zookeeper_version }}/apache-zookeeper-{{ zookeeper_version }}-bin.tar.gz"
+#zookeeper_file: "apache-zookeeper-{{ zookeeper_version }}.tar.gz"
+zookeeper_file: "{{ zookeeper_file_url.split('/')[-1] }}"
+#zookeeper_file_url: "http://mirror.bit.edu.cn/apache/zookeeper/zookeeper-{{ zookeeper_version }}/apache-zookeeper-{{ zookeeper_version }}.tar.gz"
+
+zookeeper_user: "zookeeper"
+zookeeper_port: 2181
+leader_port: "2888:3888"
+zookeeper_name: "zookeeper{{ zookeeper_port if (zookeeper_port|int != 2181) else '' }}"
+zookeeper_home: "/zookeeper_data"
+zookeeper_dir: |- 
+        {%- if single_mode -%}
+        {{ zookeeper_home }}/{{ zookeeper_port }}
+        {%- else -%}
+        {{ software_install_path }}/{{ zookeeper_file | regex_replace('.tar.gz') }}/conf
+        {%- endif -%}
+zookeeper_datadir: "{{ zookeeper_home }}/{{ zookeeper_port }}/data"
+zookeeper_datalogdir: "{{ zookeeper_home }}/{{ zookeeper_port }}/logs"
+zookeeper_hosts: "{{ ansible_play_hosts}}"  
+single_mode: false
+java_home: "{{ ansible_env.JAVA_HOME | default('/usr/java/jdk1.8') }}"
+adminserver_port: 8180

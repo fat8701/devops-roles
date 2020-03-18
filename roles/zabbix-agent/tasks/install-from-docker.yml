@@ -1,0 +1,38 @@
+---
+# author: fat
+
+- name: agent_docker | Check whether docker is installed and running.
+  shell: docker ps -a
+  register: result_docker
+  ignore_errors: true
+  
+- fail:
+    msg: "Docker was not installed or running, Please confirm!"
+  when: result_docker.rc != 0
+
+- name: agent_docker | Installed pip
+  package: name=python-pip
+
+- name: agent_docker | Pip install Docker SDK
+  pip: 
+    name: docker
+    extra_args: -i http://pypi.douban.com/simple --trusted-host pypi.douban.com
+
+- name: agent_docker | Pull zabbix agent docker image.
+  docker_image:
+    name: "{{ zabbix_agent_docker_image }}"
+    source: pull
+    
+- name: agent_docker | Running zabbix agent docker service.
+  docker_container:
+     name: "{{ zabbix_agent_docker_name }}"
+     image: "{{ zabbix_agent_docker_image }}"
+     published_ports: "{{ zabbix_agent_docker_port }}"
+     env:
+        ZBX_SERVER_HOST: "{{ zabbix_server_host }}"
+     volumes:
+        - "{{ zabbix_agent_docker_conf }}:/etc/zabbix/zabbix_agentd.d"
+     restart_policy: always
+     
+
+     

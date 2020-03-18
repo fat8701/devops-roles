@@ -1,0 +1,35 @@
+---
+# author: fat
+
+- name: configure | Create zookeeper Directory.
+  file: path={{ zookeeper_datadir }} state=directory owner={{ zookeeper_user }} group={{ zookeeper_user }}
+
+- name: configure | Set myid.
+  template: dest={{ zookeeper_datadir }}/myid src=myid.j2 owner={{ zookeeper_user }} group={{ zookeeper_user }}
+
+- name: configure | Set zoo.cfg file.
+  template:
+    dest: "{{ zookeeper_dir }}/zoo.cfg"
+    mode: 0644
+    src: zoo.cfg.j2
+    owner: "{{ zookeeper_user }}"
+    group: "{{ zookeeper_user }}"
+
+- name: configure | Set zookeeper init script.
+  template:
+    dest: "/etc/init.d/{{ zookeeper_name }}"
+    mode: 0755
+    src: zookeeper.init.j2
+    
+- name: configure | Set zookeeper systemd script.
+  template:
+    dest: "{%if ansible_distribution|lower == 'centos'%}/usr{% endif %}/lib/systemd/system/{{ zookeeper_name }}.service"
+    mode: 0644
+    src: zookeeper.systemd.j2
+
+- name: configure | Ensure zookeeper is started and enabled on boot.
+  systemd: "name={{ zookeeper_name }} state=restarted enabled=yes daemon_reload=yes"
+  ignore_errors: true
+  
+- name: configure | Wait for Zookeeper port is OPEN.
+  wait_for: "port={{ zookeeper_port }} state=started timeout=180 "

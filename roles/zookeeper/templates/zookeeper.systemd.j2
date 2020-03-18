@@ -1,0 +1,15 @@
+[Unit]
+Description={{ zookeeper_name }}.service
+After=network.target
+[Service]
+Type=forking
+Environment=ZOO_LOG_DIR={{ zookeeper_datalogdir }}
+Environment=CONF={{ zookeeper_dir }}/zoo.cfg
+Environment=JAVA_HOME={{ java_home }}
+ExecStart={{ software_install_path }}/zookeeper/bin/zkServer.sh start $CONF
+ExecStop={{ software_install_path }}/zookeeper/bin/zkServer.sh stop $CONF
+ExecReload={{ software_install_path }}/zookeeper/bin/zkServer.sh restart $CONF
+PIDFile={{ zookeeper_datadir }}/zookeeper_server.pid
+User={{ zookeeper_user }}
+[Install]
+WantedBy=multi-user.target

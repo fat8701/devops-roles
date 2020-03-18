@@ -1,0 +1,22 @@
+---
+# author: fat 
+
+- block:
+    - name: Ensure | set fact for id and port.
+      set_fact:
+        zookeeper_port: |-
+            {%- for i in zookeeper_hosts -%}
+            {%- if i.host|d(i)==ansible_default_ipv4.address or i.host|d(i)==ansible_hostname -%}
+              {{ i.port|d(zookeeper_port) }}
+            {%- endif -%}
+            {%- endfor -%}
+        leader_port: |-
+            {%- for i in zookeeper_hosts -%}
+            {%- if i.host|d(i)==ansible_default_ipv4.address or i.host|d(i)==ansible_hostname -%}
+               {{ i.leader_port|d(leader_port) }}
+            {%- endif -%}
+            {%- endfor -%}
+    
+- include_tasks: install.yml
+- include_tasks: configure.yml
+

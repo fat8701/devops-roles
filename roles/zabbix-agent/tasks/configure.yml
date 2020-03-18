@@ -1,0 +1,15 @@
+---
+# author: fat
+
+- name: configure | Setup zabbix agent config file.
+  template:
+    src: zabbix_agentd.conf.j2
+    dest: "{{ zabbix_agent_conf_path }}/zabbix_agentd.conf"
+    owner: "{{ zabbix_agent_user }}"
+    group: "{{ zabbix_agent_group }}"
+    mode: 0644
+    backup: yes
+
+- name: configure | Ensure zabbix agent is started and enabled on boot.
+  systemd: "name=zabbix-agent state=restarted enabled=yes daemon_reload=yes"
+

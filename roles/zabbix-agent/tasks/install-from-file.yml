@@ -1,0 +1,67 @@
+---
+# author: fat
+
+- name: install_file | Create software directory.
+  file: path={{ software_files_path }} state=directory
+  delegate_to: localhost
+  run_once: true
+
+- name: install_file | Download bin file.
+  get_url: 
+      url: "{{ zabbix_agent_file_url[zabbix_agent_file_version] }}"
+      dest: "{{ software_files_path }}/{{ zabbix_agent_file }}"
+#      force: yes
+  delegate_to: localhost
+
+
+- name: install_file | Copy bin file to agent
+  unarchive:
+    src: "{{ software_files_path }}/{{ zabbix_agent_file }}"
+    dest: "/tmp"
+    creates: "/tmp/{{ zabbix_agent_file_path }}"
+    
+- name: install_file | move bin files to directory
+  copy: 
+    src: "/tmp/{{ zabbix_agent_file_path }}/{{ item.src }}"
+    dest: "{{ item.dest }}"
+    remote_src: yes
+    mode: preserve
+    backup: yes
+  with_items:
+    - {src: 'bin/zabbix_get', dest: '/usr/bin'}
+    - {src: 'bin/zabbix_sender', dest: '/usr/bin'} 
+    - {src: 'sbin/zabbix_agentd', dest: '/usr/sbin'}
+
+- name: configure | Add zabbix group.
+  group: 
+    name: "{{ zabbix_agent_group }}"
+    state: present
+    
+- name: configure | Add zabbix user.
+  user:
+    name: "{{ zabbix_agent_user }}"
+    comment: Zabbix User
+    group: "{{ zabbix_agent_group }}"
+    shell: /sbin/nologin
+    
+- name: install_file | Create zabbix file directory.
+  file: path={{ item }} state=directory owner={{ zabbix_agent_user }} group={{ zabbix_agent_group }} mode=0755
+  with_items:
+    - "{{ zabbix_agent_conf_path }}"
+    - "{{ zabbix_agent_logs_path }}"
+    - "{{ zabbix_pid_path }}"
+  
+- name: install_file | move conf file to directory
+  copy: 
+    src: "/tmp/{{ zabbix_agent_file_path }}/conf/zabbix_agentd.conf"
+    dest: "{{ zabbix_agent_conf_path }}"
+    remote_src: yes
+    mode: preserve
+    backup: yes
+
+- name: install_file | Configure systemd script.
+  template:
+    src: zabbix-agent.systemd.j2
+    dest: "{%if ansible_distribution|lower == 'centos'%}/usr{% endif %}/lib/systemd/system/zabbix-agent.service"
+    mode: 0644
+    backup: yes

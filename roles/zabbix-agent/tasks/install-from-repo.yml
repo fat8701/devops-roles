@@ -1,0 +1,44 @@
+---
+# author: fat
+
+- name: install_package | Create software directory.
+  file: path={{ software_files_path }} state=directory
+  delegate_to: localhost
+  run_once: true
+  
+- name: install_package | Download repo file.
+  get_url: 
+      url: "{{ zabbix_agent_repo_url[zabbix_agent_repo_version|string] }}"
+      dest: "{{ software_files_path }}/{{ zabbix_agent_repo_package }}"
+#      force: yes
+  delegate_to: localhost
+  
+
+- name: install_package | Copy repo file to agent
+  copy:
+    src: "{{ software_files_path }}/{{ zabbix_agent_repo_package }}"
+    dest: "/tmp"
+    mode: preserve
+
+- block:
+    - name: install_package | Install zabbix-agent repo packages for CentOS.
+      package: name=/tmp/{{ zabbix_agent_repo_package }}  
+
+    - name: install_package | Ensure zabbix-agent packages are installed.
+      yum: name=zabbix-agent  state=installed update_cache=yes
+  when: ansible_distribution|lower == 'centos'
+
+- block:  
+    - name: install_package | Install zabbix-agent repo packages for Ubuntu.
+      shell: dpkg -i /tmp/{{ zabbix_agent_repo_package }}
+      
+    - name: install_package | Ensure zabbix-agent packages are installed.
+      apt: name=zabbix-agent  state=present update_cache=yes
+  when: ansible_distribution|lower == 'ubuntu'
+  
+- name: install_package | Configure systemd script.
+  template:
+    src: zabbix-agent.systemd.j2
+    dest: "{%if ansible_distribution|lower == 'centos'%}/usr{% endif %}/lib/systemd/system/zabbix-agent.service"
+    mode: 0644
+    backup: yes

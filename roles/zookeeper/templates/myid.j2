@@ -1,0 +1,8 @@
+{%- for i in zookeeper_hosts -%}
+{%- if i.host|d(i)==ansible_default_ipv4.address or i.host|d(i)==ansible_hostname -%}
+{%- if i.port|d(zookeeper_port)!=zookeeper_port and single_mode -%}
+{%- else -%}
+{{ i.id | d(loop.index) }}
+{%- endif -%}
+{%- endif -%}
+{%- endfor -%}

@@ -1,0 +1,15 @@
+---
+# author: fat
+
+zabbix_agent_win_version: 4.4
+zabbix_agent_win_url:
+        '4.4': "https://www.zabbix.com/downloads/4.4.6/zabbix_agent-4.4.6-windows-amd64.zip"
+        '4.2': "https://www.zabbix.com/downloads/4.2.8/zabbix_agent-4.2.8-windows-amd64.zip"
+        '4.0': "https://www.zabbix.com/downloads/4.0.18/zabbix_agent-4.0.18-windows-amd64.zip"
+
+zabbix_agent_running_path: "C:\\zabbix_agent\\"
+zabbix_agent_install_path: "C:\\zabbix_agent_packages\\"   
+zabbix_agent_win_package: "{{ zabbix_agent_win_url[zabbix_agent_win_version|string].split('/')[-1] }}"
+zabbix_agent_conf_path: "{{ zabbix_agent_running_path }}\\conf\\"
+zabbix_agent_bin_path: "{{ zabbix_agent_running_path }}\\bin\\"
+zabbix_agent_log_path: "{{ zabbix_agent_running_path }}\\log\\"

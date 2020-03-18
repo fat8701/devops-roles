@@ -1,0 +1,20 @@
+---
+# author: fat
+
+- block:
+    - name: check variable zabbix_agent_install_mode
+      fail:
+         msg: "Error! The value of zabbix_agent_install_mode is invalid! Please use repo or file or docker."
+      when: zabbix_agent_install_mode not in ['repo','file','docker']
+      
+    - include_vars: "{{ ansible_distribution|lower }}_{{ ansible_distribution_major_version }}.yml"  
+    - include_tasks: install-from-{{ zabbix_agent_install_mode }}.yml
+    - include_tasks: configure.yml
+      when: zabbix_agent_install_mode != 'docker' 
+  when:  ansible_system|lower == 'linux'
+
+   
+- block:
+    - include_vars: "windows.yml"  
+    - include_tasks: install-on-windows.yml    
+  when: ansible_os_family|lower == 'windows'

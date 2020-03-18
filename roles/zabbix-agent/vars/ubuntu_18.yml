@@ -1,0 +1,7 @@
+---
+# author: fat
+
+zabbix_agent_repo_url:
+        '4.4': "https://repo.zabbix.com/zabbix/4.4/ubuntu/pool/main/z/zabbix-release/zabbix-release_4.4-1+bionic_all.deb"
+zabbix_agent_file_url:
+        '4.0': "https://www.zabbix.com/downloads/4.0.0/zabbix_agent-4.0.0-ubuntu-18-amd64.tar.gz"
