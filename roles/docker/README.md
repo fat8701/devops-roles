@@ -34,7 +34,7 @@ python `2.7.5`
 
 	firewalld_stop: true
 
-	docker_registry_mirrors: ["https://docker.mirrors.ustc.edu.cn/", "http://hub-mirror.c.163.com"]
+	docker_registry_mirrors: ["http://dockerhub.azk8s.cn"]
 	docker_insecure_registries: ["harbor.pub.pdm.cmdrawin.com"]
 	docker_data_root: /var/lib/docker
 	##docker_ce_version 指定安装版本，如果未定义，则安装最新版本。

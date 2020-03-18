@@ -14,12 +14,6 @@
         state: installed
         update_cache: yes
       when: ansible_os_family == 'RedHat'  
-
-    - name: enable | Ensure update_cache not warning.
-      apt:
-        name: python-apt
-        state: present
-      when: ansible_os_family == 'Debian'
       
     - name: enable | Ensure  packages are installed.
       apt:

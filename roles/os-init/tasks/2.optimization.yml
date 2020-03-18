@@ -81,9 +81,15 @@
   when: "ansible_service_mgr == 'systemd'"
   tags:
    - systemd-limits
-
+   
+- name: optimization | Ensure epel are installed.
+  yum:
+    name: "epel-release"
+    state: installed
+  when: ansible_os_family == 'RedHat'  
+  
 - name: optimization | package repository.
-  copy: "src={{ item.src }} dest={{ item.dest }}"
+  copy: "src={{ item.src }} dest={{ item.dest }} backup=yes"
   with_items: "{{ __package_repo }}"
   tags:
    - repository

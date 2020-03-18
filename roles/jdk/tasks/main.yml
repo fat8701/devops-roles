@@ -3,17 +3,17 @@
 
 # - name: Check if java local file is already configured.
   # stat: path={{ java_file_path }}
-  # connection: local
+  # delegate_to: localhost
   # register: java_file_result
 
 # - name: Create software directory.
   # file: path={{ software_files_path }} state=directory
-  # connection: local
+  # delegate_to: localhost
   # when: not java_file_result.stat.exists
   
 # - name: Download java file.
   # get_url: url={{ java_file_url }} dest={{ software_files_path }} validate_certs=no headers="Cookie:gpw_e24=http%3A%2F%2Fwww.oracle.com%2F;oraclelicense=accept-securebackup-cookie"
-  # connection: local
+  # delegate_to: localhost
   # when: not java_file_result.stat.exists
   
 # - name: Confirm the existence of the installation directory.

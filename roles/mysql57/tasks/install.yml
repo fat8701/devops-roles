@@ -3,17 +3,17 @@
 - block:
     - name: install | Check if Mysql file is already configured.
       stat: path={{ mysql57_file_path }}
-      connection: local
+      delegate_to: localhost
       register: mysql57_file_result
 
     - name: install | Create software files path.
       file: path={{ software_files_path }} state=directory
-      connection: local
+      delegate_to: localhost
       when: not mysql57_file_result.stat.exists
 
     - name: install | Download Mysql file.
       get_url: url={{ mysql57_file_url }} dest={{ software_files_path }}
-      connection: local
+      delegate_to: localhost
       when: not mysql57_file_result.stat.exists and mysql57_install_from_source
   run_once: true
 
@@ -67,7 +67,7 @@
 - block:
     # - name: install | Download Mysql official glibc file.
       # get_url: url={{ mysql57_glibc_file_url }} dest={{ software_files_path }}
-      # connection: local
+      # delegate_to: localhost
       # run_once: true
       
     # - name: install | Copy Mysql official glibc files to agent.

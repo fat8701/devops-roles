@@ -3,17 +3,17 @@
 - block:
     - name: install | Check if tomcat local file is already configured.
       stat: path={{ tomcat_file_path }}
-      connection: local
+      delegate_to: localhost
       register: tomcat_file_result
 
     - name: install | Create software directory.
       file: path={{ software_files_path }} state=directory
-      connection: local
+      delegate_to: localhost
       when: not tomcat_file_result.stat.exists
       
     - name: install | Download tomcat file.
       get_url: url={{ tomcat_file_url }} dest={{ software_files_path }}
-      connection: local
+      delegate_to: localhost
       when: not tomcat_file_result.stat.exists
   run_once: true
 

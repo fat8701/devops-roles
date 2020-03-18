@@ -6,22 +6,22 @@
       
     - name: apr | Check if apr local file is already configured.
       stat: path={{ tomcat_apr_file_path }}
-      connection: local
+      delegate_to: localhost
       register: tomcat_apr_file_result
       
     - name: apr | Download apr file.
       get_url: url={{ tomcat_apr_file_url }} dest={{ software_files_path }}
-      connection: local
+      delegate_to: localhost
       when: not tomcat_apr_file_result.stat.exists
       
     - name: apr | Check if apr util local file is already configured.
       stat: path={{ tomcat_apr_util_file_path }}
-      connection: local
+      delegate_to: localhost
       register: tomcat_apr_util_file_result
       
     - name: apr | Download apr util file.
       get_url: url={{ tomcat_apr_util_file_url }} dest={{ software_files_path }}
-      connection: local
+      delegate_to: localhost
       when: not tomcat_apr_util_file_result.stat.exists
   run_once: true
   
