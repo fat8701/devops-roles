@@ -25,10 +25,11 @@
   tags:
     - upgrade
 
-# - name: reboot system
-  # shell: "sleep 5;reboot"
-  # async: 10
-  # poll: 0
-  # ignore_errors: yes
-  # tags:
-    # - reboot
+- name: reboot system
+  shell: "sleep 5;reboot"
+  async: 10
+  poll: 0
+  ignore_errors: yes
+  tags:
+    - reboot
+    - upgrade
