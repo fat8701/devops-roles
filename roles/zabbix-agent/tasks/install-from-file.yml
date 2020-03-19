@@ -8,7 +8,7 @@
 
 - name: install_file | Download bin file.
   get_url: 
-      url: "{{ zabbix_agent_file_url[zabbix_agent_file_version] }}"
+      url: "{{ zabbix_agent_file_url[zabbix_agent_file_version|string] }}"
       dest: "{{ software_files_path }}/{{ zabbix_agent_file }}"
 #      force: yes
   delegate_to: localhost
@@ -43,13 +43,30 @@
     comment: Zabbix User
     group: "{{ zabbix_agent_group }}"
     shell: /sbin/nologin
-    
-- name: install_file | Create zabbix file directory.
-  file: path={{ item }} state=directory owner={{ zabbix_agent_user }} group={{ zabbix_agent_group }} mode=0755
-  with_items:
-    - "{{ zabbix_agent_conf_path }}"
-    - "{{ zabbix_agent_logs_path }}"
-    - "{{ zabbix_pid_path }}"
+
+- name: install_file | Check zabbix-agent pid directory.
+  stat: path={{ zabbix_agent_pid_path }}
+  register: zabbix_pid_result  
+
+- name: install_file | Create zabbix pid directory.
+  file: path={{ zabbix_agent_pid_path }} state=directory owner={{ zabbix_agent_user }} group={{ zabbix_agent_group }} mode=0755  
+  when: not zabbix_pid_result.stat.exists
+
+- name: install_file | Check zabbix-agent conf directory.
+  stat: path={{ zabbix_agent_conf_path }}
+  register: zabbix_conf_result  
+
+- name: install_file | Create zabbix conf directory.
+  file: path={{ zabbix_agent_conf_path }} state=directory owner={{ zabbix_agent_user }} group={{ zabbix_agent_group }} mode=0755 
+  when: not zabbix_conf_result.stat.exists
+
+- name: install_file | Check zabbix-agent logs directory.
+  stat: path={{ zabbix_agent_logs_path }}
+  register: zabbix_logs_result  
+
+- name: install_file | Create zabbix logs directory.
+  file: path={{ zabbix_agent_logs_path }} state=directory owner={{ zabbix_agent_user }} group={{ zabbix_agent_group }} mode=0755
+  when: not zabbix_logs_result.stat.exists  
   
 - name: install_file | move conf file to directory
   copy: 

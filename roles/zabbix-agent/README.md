@@ -19,33 +19,33 @@ awx `5.0.0`
 python `2.7.5`
 
 ## 角色变量
-		software_files_path: "/opt/software"
-		software_install_path: "/usr/local"
+	software_files_path: "/opt/software"
+	software_install_path: "/usr/local"
 
-		zabbix_agent_repo_version: 4.4
-		zabbix_agent_repo_package: "{{ zabbix_agent_repo_url[zabbix_agent_repo_version|string].split('/')[-1] }}"
+	zabbix_agent_repo_version: 4.4
+	zabbix_agent_repo_package: "{{ zabbix_agent_repo_url[zabbix_agent_repo_version|string].split('/')[-1] }}"
 
-		zabbix_agent_file_version: 4.0
-		zabbix_agent_file: "{{ zabbix_agent_file_url[zabbix_agent_file_version|string].split('/')[-1] }}"
-		zabbix_agent_file_path: "{{ zabbix_agent_file_url[zabbix_agent_file_version|string].split('/')[-1]|regex_replace('.tar.gz')|regex_replace('centos-','centos')|regex_replace('ubuntu-','ubuntu') }}"
+	zabbix_agent_file_version: 4.0
+	zabbix_agent_file: "{{ zabbix_agent_file_url[zabbix_agent_file_version|string].split('/')[-1] }}"
+	zabbix_agent_file_path: "{{ zabbix_agent_file_url[zabbix_agent_file_version|string].split('/')[-1]|regex_replace('.tar.gz')|regex_replace('centos-','centos')|regex_replace('ubuntu-','ubuntu') }}"
 
-		#zabbix_source_file_url: "https://phoenixnap.dl.sourceforge.net/project/zabbix/ZABBIX%20Latest%20Stable/{{ zabbix_agent_version }}/{{ zabbix_agent_file }}"
-		zabbix_agent_install_mode: repo  
+	#zabbix_source_file_url: "https://phoenixnap.dl.sourceforge.net/project/zabbix/ZABBIX%20Latest%20Stable/{{ zabbix_agent_version }}/{{ zabbix_agent_file }}"
+	zabbix_agent_install_mode: repo  
 
-		zabbix_agent_user: zabbix
-		zabbix_agent_group: zabbix
+	zabbix_agent_user: zabbix
+	zabbix_agent_group: zabbix
 
-		zabbix_agent_conf_path: "/etc/zabbix" 
-		zabbix_agent_logs_path: "/var/log/zabbix"
-		zabbix_pid_path: "/tmp"
-		zabbix_server_host: "zabbix.cmdrawin.com"
+	zabbix_agent_conf_path: "/etc/zabbix" 
+	zabbix_agent_logs_path: "/var/log/zabbix"
+	zabbix_agent_pid_path: "/tmp"
+	zabbix_server_host: "zabbix.cmdrawin.com"
 
-		zabbix_agent_docker_image_name: "zabbix/zabbix-agent"
-		zabbix_agent_docker_tag: "ubuntu-latest"
-		zabbix_agent_docker_image: "{{ zabbix_agent_docker_image_name }}:{{ zabbix_agent_docker_tag }}"
-		zabbix_agent_docker_port: "10050:10050"
-		zabbix_agent_docker_name: zabbix-agent
-		zabbix_agent_docker_conf: "/etc/zabbix/zabbix_agentd.d"
+	zabbix_agent_docker_image_name: "zabbix/zabbix-agent"
+	zabbix_agent_docker_tag: "ubuntu-latest"
+	zabbix_agent_docker_image: "{{ zabbix_agent_docker_image_name }}:{{ zabbix_agent_docker_tag }}"
+	zabbix_agent_docker_port: "10050:10050"
+	zabbix_agent_docker_name: zabbix-agent
+	zabbix_agent_docker_conf: "/etc/zabbix/zabbix_agentd.d"
 
 ## 依赖
 
@@ -83,5 +83,5 @@ python `2.7.5`
 ## 使用
 
 ``` 
-	# systemctl status zabbix-agent
+systemctl status zabbix-agent
 ```

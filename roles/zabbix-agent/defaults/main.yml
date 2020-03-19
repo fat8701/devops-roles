@@ -19,7 +19,7 @@ zabbix_agent_group: zabbix
 
 zabbix_agent_conf_path: "/etc/zabbix" 
 zabbix_agent_logs_path: "/var/log/zabbix"
-zabbix_pid_path: "/tmp"
+zabbix_agent_pid_path: "/tmp"
 zabbix_server_host: "zabbix.cmdrawin.com"
 
 zabbix_agent_docker_image_name: "zabbix/zabbix-agent"
