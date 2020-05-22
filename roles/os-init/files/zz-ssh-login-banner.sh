@@ -5,6 +5,7 @@
 # @Desc    : ssh login banner
 
 # os
+if ($(/usr/bin/tty -s)); then
 upSeconds="$(cut -d. -f1 /proc/uptime)"
 secs=$((${upSeconds}%60))
 mins=$((${upSeconds}/60%60))
@@ -88,7 +89,8 @@ IP_INFO="$(ip a | grep glo | awk '{print $2}' | head -1 | cut -f1 -d/)"
 #IP_INFO="$(ip a | grep glo | awk '{print $2}' | head -1 | cut -f1 -d/) and $(curl -s ip.cip.cc)"  通过ip.cip.cc获取外网ip
 
 #clear
-echo "$(tput setaf 2)
+
+echo "$(/usr/bin/tput -T xterm setaf 2)
 ██╗██████╗ ██████╗  █████╗ ██╗    ██╗██╗███╗   ██╗
 ██║██╔══██╗██╔══██╗██╔══██╗██║    ██║██║████╗  ██║
 ██║██║  ██║██████╔╝███████║██║ █╗ ██║██║██╔██╗ ██║
@@ -102,7 +104,7 @@ echo "$(tput setaf 2)
  OS.................: ${PRETTY_NAME}
  Kernel.............: ${KERNEL}
  CPU................: ${CPU_INFO}
- $(tput setaf 1)
+ $(/usr/bin/tput -T xterm setaf 1)
  Hostname...........: $(hostname)
  IP Addresses.......: ${IP_INFO}
  Uptime.............: ${UPTIME_INFO}
@@ -112,4 +114,5 @@ echo "$(tput setaf 2)
  Load Averages......: ${LOADAVG_INFO}
  Disk Usage.........: ${DISK_INFO} 
  
-$(tput sgr0)"
+$(/usr/bin/tput -T xterm sgr0)"
+fi
