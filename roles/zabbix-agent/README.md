@@ -10,10 +10,35 @@ zabbix 是一个基于WEB界面的提供分布式系统监视以及网络监视�
 
 ## 要求
 
-此角色仅在centos7、ubuntu18.04、windows2016-server完成测试。
+此角色仅在centos7、ubuntu18.04、windows2016-server、windows-2008r2完成测试。
+
+windows2008r2需要事先完成如下操作：
+
+在powershell里运行命令
+```
+$url = "https://raw.githubusercontent.com/jborean93/ansible-windows/master/scripts/Upgrade-PowerShell.ps1"
+$file = "$env:temp\Upgrade-PowerShell.ps1"
+$username = "Administrator"
+$password = "Password"
+
+(New-Object -TypeName System.Net.WebClient).DownloadFile($url, $file)
+Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Force
+
+# Version can be 3.0, 4.0 or 5.1
+&$file -Version 5.1 -Username $username -Password $password -Verbose
+```
+如果网速差，可能需要多跑几次，成功后，再运行如下命令
+```
+# This isn't needed but is a good security practice to complete
+Set-ExecutionPolicy -ExecutionPolicy Restricted -Force
+
+$reg_winlogon_path = "HKLM:\Software\Microsoft\Windows NT\CurrentVersion\Winlogon"
+Set-ItemProperty -Path $reg_winlogon_path -Name AutoAdminLogon -Value 0
+Remove-ItemProperty -Path $reg_winlogon_path -Name DefaultUserName -ErrorAction SilentlyContinue
+Remove-ItemProperty -Path $reg_winlogon_path -Name DefaultPassword -ErrorAction SilentlyContinue
+```
 
 ## 测试环境
-
 ansible `2.8.8`
 awx `5.0.0`
 python `2.7.5`
@@ -77,9 +102,11 @@ python `2.7.5`
     - hosts: node3
       roles:
        - { role: zabbix-agent }
+	   
 	windows inventory需要配置：
 	[windows]
 	192.168.x.x  ansible_user="administrator" ansible_password="xxxxxxx" ansible_port=5985 ansible_connection="winrm" ansible_winrm_transport=ntlm  ansible_winrm_server_cert_validation=ignore
+	
 ## 使用
 
 ``` 
