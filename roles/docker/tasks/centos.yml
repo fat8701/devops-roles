@@ -1,8 +1,8 @@
 ---
 # author: fat
 
-- name: Ensure docker history packages are removed.
-  yum: "name={{ docker_old }} state=removed"
+# - name: Ensure docker history packages are removed.
+  # yum: "name={{ docker_old }} state=absent"
 
 - name: Ensure docker packages are installed.
   yum: "name={{ docker_packages_redhat }} state=installed  update_cache=yes"

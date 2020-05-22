@@ -1,8 +1,8 @@
 ---
 # author: fat
 
-- name: Ensure docker history packages are removed.
-  apt: "name={{ docker_old }} state=absent"
+# - name: Ensure docker history packages are removed.
+  # apt: "name={{ docker_old }} state=absent purge=yes"
 
 - name: Ensure docker packages are installed.
   apt: "name={{ docker_packages_debian }} update_cache=yes"
