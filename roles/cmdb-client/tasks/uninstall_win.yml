@@ -1,0 +1,25 @@
+---
+# author: fat
+   
+- name: Cancel the CMDB Client Task.
+  win_scheduled_task:
+    name: CMDB Client Task
+    state: absent
+    
+- name: Get information about CMDB Client Task
+  win_scheduled_task_stat:
+    name: CMDB Client Task
+  register: cmdb_task_stat
+
+- debug:
+    msg: "{{ cmdb_task_stat}}"
+    
+# - name: Delete client directory and file
+  # win_file: 
+    # path: "{{ win_client_file_path }}"
+    # state: absent
+    
+- name: Delete client directory and file
+  win_shell: "del *.ps1,*.log"
+  args:
+    chdir: "{{ win_client_file_path }}"

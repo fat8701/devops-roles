@@ -1,0 +1,57 @@
+---
+# author: fat
+
+- name: Install | Check if file path exists.
+  stat: path={{ client_file_path }}
+  register: client_file_result
+
+- name: Create software directory.
+  file: path={{ client_file_path }} state=directory
+  when: not client_file_result.stat.exists
+
+   
+- name: Install | Copy service file to agent.
+  copy:
+    src: "{{ item }}"
+    dest: "{{ client_file_path }}"
+    owner: root
+    group: root
+    mode: '0644'
+  with_items:
+    - adminset_agent.py
+    - adminsetd
+    - adminsetd.service
+    - install.sh
+    - uninstall.sh
+
+- name: Install | Modify the server ip of adminset server.
+  lineinfile:
+     path: "{{ client_file_path }}/adminset_agent.py"
+     regexp: '^server_ip'
+     line: "server_ip = \'{{ server_ip }}\'"
+     
+- name: Install | Modify the token.
+  lineinfile:
+     path: "{{ client_file_path }}/adminset_agent.py"
+     regexp: '^token'
+     line: "token = \'{{ token|d('HPcWR7l4NJNJ') }}\'"     
+     
+- name: Install | Enable repo for xenserver.
+  replace: 
+     path: "/etc/yum.repos.d/CentOS-Base.repo"
+     regexp: "{{ item.key }}"
+     replace: "{{ item.value }}"
+  with_dict:
+    - {'^#baseurl': 'baseurl'}
+    - {'^mirrorlist': '#mirrorlist'}
+    - {'^enabled=0': 'enabled=1'}
+    - {'mirror.centos.org': 'mirrors.aliyun.com'}
+  when: ansible_distribution|lower == 'xenserver'
+    
+- name: Install | Running install.sh.
+  shell: "source /etc/profile && /bin/bash -x install.sh > install.log 2>&1"
+  args:
+     chdir: "{{ client_file_path }}"
+     executable: /bin/bash 
+
+  

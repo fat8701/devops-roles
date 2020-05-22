@@ -1,0 +1,56 @@
+---
+# author: fat
+
+- name: Install | Check if file path exists.
+  win_stat: 
+    path: "{{ win_client_file_path }}"
+  register: win_client_file_result
+
+- name: Create software directory.
+  win_file: 
+    path: "{{ win_client_file_path }}"
+    state: directory
+  when: not win_client_file_result.stat.exists
+   
+- name: Install | Copy powershell template to agent.
+  win_template:
+    src: "cmdb_client.ps.j2"
+    dest: "{{ win_client_file_path }}\\cmdb_client.ps1"
+    
+- name: Change owner of path
+  win_owner:
+    path: "{{ win_client_file_path }}"
+    user: administrator
+    recurse: yes
+
+- name: Create task to run cmdb_client powershell script per hours.
+  win_scheduled_task:
+    name: CMDB Client Task
+    description: Run cmdb_client PowerShell script per hours.
+    actions:
+    - path: "{{ powershell_path }}"
+      arguments: -ExecutionPolicy Unrestricted -NonInteractive -File {{ win_client_file_path }}\cmdb_client.ps1
+    triggers:
+    - type: registration
+      repetition:
+        interval: PT5M
+    username: administrator
+    run_level: highest
+    state: present
+    
+- name: Get information about CMDB Client Task
+  win_scheduled_task_stat:
+    name: CMDB Client Task
+  register: cmdb_task_stat
+
+- debug:
+    msg: "{{ cmdb_task_stat}}"
+  
+  
+  
+  
+  
+  
+  
+
+  

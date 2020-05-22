@@ -1,0 +1,9 @@
+---
+# author: fat
+   
+- name: Uninstall | Running uninstall.sh.
+  shell: "source /etc/profile && /bin/bash -x uninstall.sh > uninstall.log 2>&1"
+  args:
+     chdir: "{{ client_file_path }}"
+     executable: /bin/bash   
+  ignore_errors: true

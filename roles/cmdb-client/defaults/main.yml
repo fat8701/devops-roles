@@ -1,0 +1,9 @@
+---
+# author: fat
+
+install_adminsetd: yes
+client_file_path: /usr/local/adminset-client
+win_client_file_path: "C:\\cmdb_client"
+powershell_path: "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+token: 
+server_ip: 

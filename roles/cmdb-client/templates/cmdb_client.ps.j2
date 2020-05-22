@@ -1,0 +1,155 @@
+#CMDB基础变量
+$AGENT_VERSION = "1.0"
+$SERVER_IP = "{{ server_ip }}"
+$TOKEN = "{{ token }}"
+$LOG_DIR = "{{ win_client_file_path }}"
+
+#获取机器的操作系统版本 
+$OSVERSION = Get-WmiObject -class Win32_OperatingSystem | select -ExpandProperty Caption 
+
+#获取机器的操作系统SP版本  
+$SP_VERSION = Get-WmiObject -class Win32_OperatingSystem | select -ExpandProperty  ServicePackMajorVersion
+if ($SP_VERSION -eq 0)
+{
+	$OSVER_FULL = $OSVERSION	
+}
+else
+{
+	$OSVER_FULL = "$OSVERSION SP$SP_VERSION"
+}
+
+#获取机器的厂商 
+$VENDOR = Get-WmiObject -Class Win32_ComputerSystem | select -ExpandProperty Manufacturer
+
+#获取机器的CPU型号
+$CPU_MODEL = Get-WMIObject Win32_Processor | select -First 1 -ExpandProperty Name
+
+#获取机器的CPU逻辑核数
+$CPU_NUM = Get-WmiObject -Class Win32_ComputerSystem | select -ExpandProperty NumberOfLogicalProcessors
+
+#获取机器的CPU物理核数
+$CPU_PHYSICAL = @(Get-WmiObject -Class Win32_Processor).count * (Get-WMIObject Win32_Processor | select -First 1 -ExpandProperty NumberOfCores)
+
+#通过获取WMI中的bios 类获取到机器相应的序列号，存放在BIOS的SN
+$SN = Get-WmiObject -class Win32_BIOS|select -ExpandProperty SerialNumber     
+
+#通过获取WMI中的IPV4地址
+$IP = Get-WmiObject -class Win32_NetworkAdapterConfiguration -Filter IPEnabled=true |select -ExpandProperty IPAddress -First 1 | ?{$_ -notlike "*:*" -and $_ -notlike "169*"} 
+
+#获取机器的主机名
+$HOSTNAME = Get-WmiObject -Class Win32_ComputerSystem | select -ExpandProperty Name
+
+#通过获取WMI中的计算机内存 
+$MEMORY = (Get-WmiObject -Class Win32_ComputerSystem | select -ExpandProperty TotalPhysicalMemory)/1gb -as [int]     
+
+#将磁盘信息输出成json格式	
+Function Disk_Json()
+{
+	$DiskInfo= Get-WMIObject Win32_LogicalDisk 
+	Write-Output "["
+	foreach ($Drivers in $DiskInfo) 
+	  {	  
+		if(![String]::IsNullOrEmpty($Drivers.Size))
+		{
+			$PartitionID = $Drivers.DeviceID
+			$PartitionSize = "{0:N2}GB" -f ($Drivers.Size/1GB)
+			$PartitionFreeSize = "{0:N2}GB" -f ($Drivers.FreeSpace/1GB)
+			$PartitionFS = $Drivers.FileSystem
+			Write-Output """ $PartitionID($PartitionName) $PartitionFreeSize/$PartitionSize $PartitionFS "","
+		}
+	  }
+	Write-Output "]"
+}
+$DISK_INFO = Disk_Json 
+
+#写日志函数
+Function Write-Log 
+{
+	[CmdletBinding()]
+	Param(
+	[Parameter(Mandatory=$False)]
+	[ValidateSet("INFO","WARN","ERROR","FATAL","DEBUG")]
+	[String]
+	$Level = "INFO",
+
+	[Parameter(Mandatory=$True)]
+	[string]
+	$Message
+	)
+	
+	if (!$LOG_DIR -Or !(Test-Path $LOG_DIR))
+	{
+		Write-Error -Message 'No $LOG_DIR set.'
+		break
+	}
+	else {
+	$Stamp = (Get-Date).toString("yyyy/MM/dd HH:mm:ss")
+	$LOG_ARCHIVE_FILE = $LOG_DIR + "\old.log"
+	$LOG_FILE = $LOG_DIR + "\agent.log"
+	$Line = "$Stamp $Level $Message"
+	
+		if ((Get-Item $LOG_FILE).length -ge 5242880){
+			"$Stamp INFO ---------- Log exceeds 5MB, archiving and creating new log. ----------" | out-file -append -filepath $LOG_FILE
+			if (Test-Path $LOG_ARCHIVE_FILE){
+				"$Stamp INFO ---------- Archive log already exists, Removing it first before archiving current log. ----------" | out-file -append -filepath $LOG_FILE
+				Get-Item $LOG_ARCHIVE_FILE | Remove-Item
+			}
+			Get-Childitem $LOG_FILE | Rename-Item -NewName {"old.log"}
+			"$Stamp INFO ---------- Create new log file, Archived old log . ----------" | out-file -append -filepath $LOG_FILE
+		}
+		Add-Content $LOG_FILE -Value $Line
+	}
+}
+
+#Post函数
+Function POST_DATA($URL, $BODY)
+{
+	try{
+		$Request = curl -uri $URL -Method Post -ContentType "application/json;charset=utf-8" -Body $BODY
+
+		if (![String]::IsNullOrEmpty($Request.Content)){
+
+			Write-Log -Message $Request.Content	
+		}
+		else
+		{
+			Write-Log -level ERROR -Message Return http status code: $Request.StatusCode
+		}
+	}
+	catch{
+		Write-Log -level ERROR -Message "---------------------------ERROR!!!------------------------"
+		Write-Log -level ERROR -Message $_.Exception.Message
+	}
+}
+
+$URL_ASSET = "http://$SERVER_IP/cmdb/collect"	 
+$ASSET_INFO = @{ 
+		memory = "$MEMORY";
+		disk = "$DISK_INFO";
+		cpu_physical = "$CPU_PHYSICAL";
+		cpu_num = "$CPU_NUM";
+		cpu_model = "$CPU_MODEL";
+		ip = "$IP";
+		sn = "$SN";
+		vendor = "$VENDOR";
+		osver = "$OSVER_FULL";
+		hostname = "$HOSTNAME";
+		token = "$TOKEN";
+		agent_version = "$AGENT_VERSION"
+		}
+$ASSET_JSON = $ASSET_INFO | ConvertTo-Json
+Write-Log -Message "-------------------------POST_INFO-----------------------------"
+Write-Log -Message "$ASSET_JSON"
+POST_DATA $URL_ASSET $ASSET_JSON
+
+$SYS_INFO = @{ 
+		ip = "$IP";
+		token = "$TOKEN";
+		cpu = "";
+		mem = "";
+		disk = "";
+		net = ""			
+		}	
+$SYS_JSON = $SYS_INFO | ConvertTo-Json
+$URL_SYS = "http://$SERVER_IP/monitor/received/sys/info/"	
+POST_DATA $URL_SYS $SYS_JSON

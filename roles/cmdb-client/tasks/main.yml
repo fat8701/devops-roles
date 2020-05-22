@@ -1,0 +1,9 @@
+---
+# author: fat
+   
+
+- include_tasks: install_{{ ansible_system[:3] | lower  }}.yml    
+  when: install_adminsetd
+
+- include_tasks: uninstall_{{ ansible_system[:3] | lower }}.yml    
+  when: not install_adminsetd
