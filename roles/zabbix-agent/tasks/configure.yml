@@ -8,7 +8,7 @@
     owner: "{{ zabbix_agent_user }}"
     group: "{{ zabbix_agent_group }}"
     mode: 0644
-    backup: yes
+#    backup: yes
 
 - name: configure | Ensure zabbix agent is started and enabled on boot.
   systemd: "name=zabbix-agent state=restarted enabled=yes daemon_reload=yes"

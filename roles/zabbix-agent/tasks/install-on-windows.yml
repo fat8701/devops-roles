@@ -1,16 +1,22 @@
 ---
 # author: fat
 
-- name: install_windows | Create software directory.
-  file: path={{ software_files_path }} state=directory
+- block:
+    - name: install_windows | Check zabbix-agent zip file.
+      stat: path={{ software_files_path }}/{{ zabbix_agent_win_package }}
+      register: result_agent_win
+      
+    - name: install_windows | Create software directory.
+      file: path={{ software_files_path }} state=directory
+      when: not result_agent_win.stat.exists   
+
+    - name: install_windows | Download zabbix-agent zip file.
+      get_url: 
+        url: "{{ zabbix_agent_win_url[zabbix_agent_win_version|string] }}"
+        dest: "{{ software_files_path }}/{{ zabbix_agent_win_package }}"
+      when: not result_agent_win.stat.exists
   delegate_to: localhost
   run_once: true
-
-- name: install_windows | Download zabbix-agent zip file.
-  get_url: 
-    url: "{{ zabbix_agent_win_url[zabbix_agent_win_version|string] }}"
-    dest: "{{ software_files_path }}/{{ zabbix_agent_win_package }}"
-  delegate_to: localhost
 
 - name: install_windows | Stop zabbix-agent
   win_command: zabbix_agentd.exe -x -c {{ zabbix_agent_conf_path }}\zabbix_agentd.conf
@@ -52,8 +58,7 @@
 - name: install_windows | Create zabbix_agentd.conf.
   win_template:
     src: zabbix_agentd_win.conf.j2
-    dest: "{{ zabbix_agent_conf_path }}\\zabbix_agentd.conf"
-    backup: yes   
+    dest: "{{ zabbix_agent_conf_path }}\\zabbix_agentd.conf"   
     
 - name: install_windows | Install zabbix-agent
   win_command: zabbix_agentd.exe -i -c {{ zabbix_agent_conf_path }}\zabbix_agentd.conf
