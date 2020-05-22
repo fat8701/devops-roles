@@ -9,7 +9,7 @@ adminset的客户端脚本，完成agent作用。
 
 ## 要求
 
-此角色仅在centos7、ubuntu18.04完成测试。
+此角色仅在centos7、ubuntu18.04、windows datacenter 2016、windows 2008r2完成测试。
 
 ## 测试环境
 ansible `2.8.8`
