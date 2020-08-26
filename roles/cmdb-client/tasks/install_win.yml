@@ -29,12 +29,15 @@
     description: Run cmdb_client PowerShell script per hours.
     actions:
     - path: "{{ powershell_path }}"
-      arguments: -ExecutionPolicy Unrestricted -NonInteractive -File {{ win_client_file_path }}\cmdb_client.ps1
+      arguments: -ExecutionPolicy Unrestricted -NonInteractive -WindowStyle Hidden -File {{ win_client_file_path }}\cmdb_client.ps1 
     triggers:
+    - type: boot
+      repetition:
+        interval: PT1H
     - type: registration
       repetition:
-        interval: PT5M
-    username: administrator
+        interval: PT1H
+    group: SYSTEM
     run_level: highest
     state: present
     
@@ -45,8 +48,24 @@
 
 - debug:
     msg: "{{ cmdb_task_stat}}"
-  
-  
+
+#- name: Start to run cmdb_client powershell script one time.
+#  win_command: "{{ powershell_path }} -ExecutionPolicy Unrestricted -NonInteractive -WindowStyle Hidden {{ win_client_file_path }}\\cmdb_client.ps1"
+#  async: 10
+#  poll: 0
+    
+# - name: Create task to run cmdb_client powershell script per hours.
+  # win_service:
+    # name: CMDB Client Task
+    # description: Run cmdb_client PowerShell script per 1min.
+    # path: "{{ powershell_path }} -ExecutionPolicy Unrestricted -NonInteractive -File {{ win_client_file_path }}\\cmdb_client.ps1"
+    # start_mode: auto
+    # state: started
+  # register: cmdb_service
+
+
+# - debug:
+    # msg: "{{ cmdb_service.state}}" 
   
   
   
