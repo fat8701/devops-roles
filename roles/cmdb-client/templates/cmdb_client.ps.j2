@@ -4,6 +4,8 @@ $SERVER_IP = "{{ server_ip }}"
 $TOKEN = "{{ token }}"
 $LOG_DIR = "{{ win_client_file_path }}"
 
+#while (1)
+#{
 #获取机器的操作系统版本 
 $OSVERSION = Get-WmiObject -class Win32_OperatingSystem | select -ExpandProperty Caption 
 
@@ -105,7 +107,7 @@ Function Write-Log
 Function POST_DATA($URL, $BODY)
 {
 	try{
-		$Request = curl -uri $URL -Method Post -ContentType "application/json;charset=utf-8" -Body $BODY
+		$Request = curl -uri $URL -UseBasicParsing -Method Post -ContentType "application/json;charset=utf-8" -Body $BODY
 
 		if (![String]::IsNullOrEmpty($Request.Content)){
 
@@ -153,3 +155,6 @@ $SYS_INFO = @{
 $SYS_JSON = $SYS_INFO | ConvertTo-Json
 $URL_SYS = "http://$SERVER_IP/monitor/received/sys/info/"	
 POST_DATA $URL_SYS $SYS_JSON
+
+#Start-Sleep -s 300
+#}
