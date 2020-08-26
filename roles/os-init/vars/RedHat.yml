@@ -16,6 +16,7 @@ __package:
   - tree
   - bash-completion
   - chrony
+  - rsync
   
 __package_repo: 
   - { src: "{{ ansible_distribution }}_{{ansible_distribution_major_version}}_CentOS-Base.repo", dest: "/etc/yum.repos.d/CentOS-Base.repo" }

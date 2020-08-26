@@ -70,3 +70,7 @@
   when: "ansible_service_mgr == 'systemd'"
   tags:
    - rc-local
+   
+- name: Ensure chronyd is started and enabled at boot.
+  systemd: name=chronyd state=started enabled=yes
+
