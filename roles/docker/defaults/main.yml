@@ -31,6 +31,6 @@ docker_ce_packages_redhat:
 firewalld_stop: true
 
 
-docker_registry_mirrors: ["http://dockerhub.azk8s.cn"]
+docker_registry_mirrors: ["http://hub-mirror.c.163.com/"]
 docker_insecure_registries: ["harbor.pub.pdm.cmdrawin.com"]
 docker_data_root: /var/lib/docker
