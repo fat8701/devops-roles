@@ -24,7 +24,7 @@ def get_ip():
     netcard_info = []
     info = psutil.net_if_addrs()
     for k, v in info.items():
-        if re.match('eth|ens|xenbr|xapi', k):
+        if re.match('eth|en|xenbr|xapi', k):
             for item in v:
                 if item.family == 2 and item.address != '127.0.0.1':
                     netcard_info.append(item.address)
@@ -88,7 +88,7 @@ def parser_cpu(stdout):
 
 def get_disk_info():
     ret = []
-    cmd = "fdisk -l|egrep '^Disk\s/dev/[a-z]+:\s\w*'"
+    cmd = "fdisk -l|egrep '^Disk\s/dev/[a-z0-9]+:\s\w*'"
     p = Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True)
     stdout, stderr = p.communicate()
     for i in stdout.split('\n'):
