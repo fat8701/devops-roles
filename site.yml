@@ -1,5 +1,7 @@
 - hosts: all
   tasks:
       - name: multi-roles
-        include_role: name={{ item }}
+        include_role: name={{ role_item }}
         with_items: "{{ roles_name }}"
+        loop_control:
+            loop_var: role_item
