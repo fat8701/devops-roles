@@ -242,10 +242,10 @@ def agg_sys_info():
     logging.info('Get the system infos from host:')
     sys_info = {'ip': get_ip(),
                 # 'hostname': platform.node(),
-                'cpu': get_sys_cpu(),
-                'mem': get_sys_mem(),
-                'disk': get_sys_disk(),
-                'net': get_net_info(),
+                #'cpu': get_sys_cpu(),
+                #'mem': get_sys_mem(),
+                #'disk': get_sys_disk(),
+                #'net': get_net_info(),
                 'token': token}
 
     logging.info(sys_info)
@@ -278,7 +278,7 @@ if __name__ == "__main__":
     time.sleep(1)
     agg_sys_info()
     schedule.every(3600).seconds.do(run_threaded, asset_info_post)
-    schedule.every(300).seconds.do(run_threaded, agg_sys_info)
+    schedule.every(3600).seconds.do(run_threaded, agg_sys_info)
     schedule.every().monday.at("00:20").do(run_threaded, clean_log)
     while True:
         schedule.run_pending()

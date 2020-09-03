@@ -146,11 +146,7 @@ POST_DATA $URL_ASSET $ASSET_JSON
 
 $SYS_INFO = @{ 
 		ip = "$IP";
-		token = "$TOKEN";
-		cpu = "";
-		mem = "";
-		disk = "";
-		net = ""			
+		token = "$TOKEN"		
 		}	
 $SYS_JSON = $SYS_INFO | ConvertTo-Json
 $URL_SYS = "http://$SERVER_IP/monitor/received/sys/info/"	
