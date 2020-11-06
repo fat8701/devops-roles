@@ -9,9 +9,7 @@ events {
     worker_connections  {{ nginx_worker_connections }};
     multi_accept {{ nginx_multi_accept }};
 }
-{% if nginx_extra_conf_options %}
-{{ nginx_extra_conf_options }}
-{% endif %}
+
 http {
     include       {{ nginx_mime_file_path }};
     default_type  application/octet-stream;
@@ -46,6 +44,9 @@ http {
 {% endif %}
 {% if nginx_extra_http_options %}
     {{ nginx_extra_http_options|indent(4, False) }}
+{% endif %}
+{% if nginx_extra_conf_options %}
+    {{ nginx_extra_conf_options }}
 {% endif %}
 {% if nginx_stream %}
 }
