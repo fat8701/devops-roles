@@ -28,7 +28,7 @@ python `2.7.5`
     nginx_file_path: "{{ software_files_path }}/{{ nginx_file }}"
     nginx_file_url: "http://nginx.org/download/nginx-{{ nginx_version }}.tar.gz"
 
-    nginx_temp_path: "/var/tmp/nginx"
+    nginx_temp_path: "/var/temp/nginx"
     nginx_conf_path: "{{ software_install_path }}/nginx-{{ nginx_version }}/conf/"
     nginx_conf_file_path: "{{ software_install_path }}/nginx-{{ nginx_version }}/conf/nginx.conf"
 

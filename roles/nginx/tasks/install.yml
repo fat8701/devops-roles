@@ -38,6 +38,7 @@
     - openssl-devel
     - pcre
     - pcre-devel
+    - git
 
 - name: install | Create nginx group.
   group: name={{ nginx_group }}
@@ -56,6 +57,11 @@
   stat: path={{ software_install_path }}/nginx/sbin/nginx
   register: nginx_bin_result
 
+- name: install | Check out nginx-sticky-module-ng source code.
+  git:
+    repo: 'https://bitbucket.org/nginx-goodies/nginx-sticky-module-ng/src/master/'
+    dest: "{{ nginx_sticky_module_ng_dir }}" 
+   
 - name: install | Build an install nginx.
   shell: "{{ item }}" 
   with_items:
