@@ -34,7 +34,8 @@ python `2.7.5`
 
     nginx_user: 'nginx'
     nginx_group: 'nginx'
-    nginx_build_options: ''
+	nginx_build_options: '--add-module={{ nginx_sticky_module_ng_dir }}'
+	nginx_sticky_module_ng_dir: '/tmp/nginx_sticky_module_ng'
     nginx_configure_command: >
       ./configure 
       --prefix={{ software_install_path }}/nginx-{{ nginx_version }}
